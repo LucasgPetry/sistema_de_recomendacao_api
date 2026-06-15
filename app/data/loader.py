@@ -2,11 +2,11 @@ from pathlib import Path
 
 import pandas as pd
 
-DATA_DIR = Path("data/raw")
+DATA_DIR = Path("data/processed")
 
 
 def load_books() -> pd.DataFrame:
-    books_path = DATA_DIR / "books.csv"
+    books_path = DATA_DIR / "books_clean.csv"
 
     if not books_path.exists():
         raise FileNotFoundError(
@@ -17,11 +17,11 @@ def load_books() -> pd.DataFrame:
 
 
 def load_ratings() -> pd.DataFrame:
-    ratings_path = DATA_DIR / "ratings.csv"
+    ratings_path = DATA_DIR / "ratings_harmonized.csv"
 
     if not ratings_path.exists():
         raise FileNotFoundError(
             f"Arquivo não encontrado: {ratings_path}"
         )
 
-    return pd.read_csv(ratings_path, nrows=10)
+    return pd.read_csv(ratings_path)

@@ -6,6 +6,10 @@ from app.api.router import api_router
 from app.data.loader import load_books, load_ratings
 from app.data import data_store
 
+from app.recommender.content_based import (
+    initialize_content_model,
+)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -27,6 +31,14 @@ async def lifespan(app: FastAPI):
         print(
             f"Ratings carregados: {len(data_store.ratings_df)}"
         )
+
+        print("Treinando modelo TF-IDF...")
+
+        initialize_content_model(
+            data_store.books_df
+        )
+
+        print("Modelo TF-IDF carregado.")
 
     except Exception as e:
 
