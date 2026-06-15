@@ -1,7 +1,18 @@
 [project]
 name = "projeto-sistema-recomendacao-api"
 version = "0.1.0"
-description = "Add your description here"
+description = "Sistema híbrido de recomendação de livros"
 readme = "README.md"
-requires-python = ">=3.14"
-dependencies = []
+requires-python = ">=3.12"
+
+dependencies = [
+    "fastapi",
+    "httpx",
+    "numpy",
+    "pandas",
+    "pytest",
+    "python-dotenv",
+    "scikit-learn",
+    "scikit-surprise",
+    "uvicorn[standard]",
+]
