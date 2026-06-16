@@ -9,6 +9,11 @@ from app.data import data_store
 from app.recommender.content_based import (
     initialize_content_model,
 )
+from app.recommender.collaborative import (
+    train_collaborative_model,
+)
+
+from app.recommender import model_store
 
 
 @asynccontextmanager
@@ -39,6 +44,16 @@ async def lifespan(app: FastAPI):
         )
 
         print("Modelo TF-IDF carregado.")
+
+        print("Treinando modelo colaborativo...")
+
+        model_store.svd_model = (
+            train_collaborative_model(
+                data_store.ratings_df
+            )
+        )
+
+        print("Modelo colaborativo treinado.")
 
     except Exception as e:
 

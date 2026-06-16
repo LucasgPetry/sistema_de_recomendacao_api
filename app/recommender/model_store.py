@@ -5,3 +5,7 @@ books_df: pd.DataFrame | None = None
 tfidf_vectorizer = None
 
 tfidf_matrix = None
+
+books_df = None
+
+svd_model = None
