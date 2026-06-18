@@ -6,6 +6,7 @@ tfidf_vectorizer = None
 
 tfidf_matrix = None
 
-books_df = None
+svd_model = None 
 
-svd_model = None
+content_model = None
+

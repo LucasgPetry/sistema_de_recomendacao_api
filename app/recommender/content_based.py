@@ -97,38 +97,63 @@ def recommend_by_title(
         similarities.argsort()[::-1]
     )
 
-    similar_indices = similar_indices[
-        1 : top_k + 1
+    similar_indices = (
+        similar_indices[
+            1 : top_k + 20
+        ]
+    )
+
+    similar_scores = similarities[
+        similar_indices
     ]
 
     recommendations = books.iloc[
-    similar_indices
-][
-    [
-        "bookId",
-        "title",
-        "author",
-        "rating",
-        "likedPercent",
-        "numRatings",
-        "genres",
-    ]
-]
-    
-    EXCLUDED_PATTERNS = (
-    "guide|summary|companion|analysis|study|"
-    "sampler|boxset|parody|workbook|notes|"
-    "collection|complete novels|complete works"
-)
-    
-    recommendations = recommendations[
-    ~recommendations["title"]
-    .str.lower()
-    .str.contains(
-        EXCLUDED_PATTERNS,
-        na=False,
+        similar_indices
+    ][
+        [
+            "bookId",
+            "title",
+            "author",
+            "rating",
+            "likedPercent",
+            "numRatings",
+            "genres",
+        ]
+    ].copy()
+
+    recommendations[
+        "similarity_score"
+    ] = similar_scores
+
+    recommendations[
+        "source"
+    ] = "content"
+
+    recommendations[
+        "reason"
+    ] = (
+        "Similar ao livro consultado"
     )
-]
+
+    EXCLUDED_PATTERNS = (
+        "guide|summary|companion|analysis|study|"
+        "sampler|boxset|parody|workbook|notes|"
+        "collection|complete novels|complete works"
+    )
+
+    recommendations = recommendations[
+        ~recommendations["title"]
+        .str.lower()
+        .str.contains(
+            EXCLUDED_PATTERNS,
+            na=False,
+        )
+    ]
+
+    recommendations = recommendations.sort_values(
+        by="similarity_score",
+        ascending=False,
+    )
 
     return recommendations.head(top_k)
 

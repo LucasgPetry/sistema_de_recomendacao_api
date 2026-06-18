@@ -15,6 +15,12 @@ from app.recommender.collaborative import (
 
 from app.recommender import model_store
 
+from app.recommender.content_based import (
+    train_content_model,
+)
+
+
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -28,6 +34,27 @@ async def lifespan(app: FastAPI):
         print("Iniciando carga dos ratings...")
         data_store.ratings_df = load_ratings()
         print("Ratings carregados")
+
+        print("Treinando TF-IDF...")
+
+        (
+            model_store.content_model,
+            model_store.tfidf_matrix,
+        ) = train_content_model(
+            data_store.books_df
+        )
+
+        print("TF-IDF treinado.")
+
+        print("Treinando SVD...")
+
+        model_store.svd_model = (
+            train_collaborative_model(
+            data_store.ratings_df
+    )
+)
+
+        print("SVD treinado.")
 
         print(
             f"Books carregados: {len(data_store.books_df)}"
