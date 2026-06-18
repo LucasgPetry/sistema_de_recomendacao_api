@@ -10,6 +10,12 @@ from app.recommender.collaborative import (
     recommend_for_user,
 )
 
+from app.recommender.popularity import (
+    recommend_popular_books,
+)
+
+
+
 def get_user_favorite_book(
     user_id: int,
     ratings_df: pd.DataFrame,
@@ -83,6 +89,85 @@ def hybrid_recommendation(
     - título favorito
     """
 
+    history_size = (
+    get_user_profile_size(
+        user_id,
+        ratings_df,
+    )
+)
+
+    print(
+    f"Usuário {user_id} possui "
+    f"{history_size} avaliações"
+)
+
+    if history_size < 3:
+
+        print(
+        "Modo: POPULARITY"
+    )
+
+        return {
+            "strategy": "popularity",
+            "recommendations": (
+                recommend_popular_books(
+                    books_df,
+                    top_k=10,
+            )
+            .to_dict(
+                orient="records"
+            )
+        ),
+    }
+
+    if history_size > 15:
+
+        print(
+        "Modo: COLLABORATIVE"
+    )
+
+        recommendations = (
+            recommend_for_user(
+                user_id=user_id,
+                books_df=books_df,
+                ratings_df=ratings_df,
+                model=collaborative_model,
+                top_k=10,
+        )
+    )
+
+        recommendations["source"] = (
+            "collaborative"
+    )
+
+        recommendations["reason"] = (
+            "Usuários semelhantes gostaram"
+        )
+
+        recommendations["score"] = (
+            recommendations[
+                "predicted_rating"
+            ]
+        )
+
+        return {
+            "strategy": "collaborative",
+            "recommendations": (
+                recommendations[
+                    [
+                        "title",
+                        "author",
+                        "source",
+                        "reason",
+                        "score",
+                    ]
+                ]
+                .to_dict(
+                    orient="records"
+                )
+            ),
+        }
+
     favorite_book_id = get_user_favorite_book(
         user_id=user_id,
         ratings_df=ratings_df,
@@ -127,7 +212,11 @@ def hybrid_recommendation(
 )
 
     return {
+
+    "strategy": "hybrid",
+
     "user_id": user_id,
+
     "favorite_title": favorite_title,
 
     "content_candidates": (
@@ -140,7 +229,7 @@ def hybrid_recommendation(
         .tolist()
     ),
 
-    "hybrid_recommendations": (
+    "recommendations": (
         final_recommendations
     ),
 }
@@ -261,3 +350,15 @@ def merge_recommendations(
             )
 
     return unique[:top_k]
+
+def get_user_profile_size(
+    user_id,
+    ratings_df,
+):
+
+    return len(
+        ratings_df[
+            ratings_df["user_id"]
+            == user_id
+        ]
+    )
